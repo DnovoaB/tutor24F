@@ -11,11 +11,12 @@ export default defineNuxtConfig({
   modules: [
     "@nuxtjs/tailwindcss",
     "@nuxt/ui",
-  ], // Removí @prisma/nuxt ya que manejaremos Prisma manualmente
+  ],
   components: {
     path: "~/components",
     pathPrefix: false,
     extensions: [".vue"],
+    global: true,
   },
   postcss: {
     plugins: {
@@ -25,6 +26,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     geminiApiKey: process.env.GEMINI_API_KEY,
+    jwtSecret: process.env.JWT_SECRET,
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || "/api",
     },
@@ -39,10 +41,12 @@ export default defineNuxtConfig({
         },
       ],
     },
+    buildAssetsDir: "/_nuxt/", // Para mejor compatibilidad con Vercel
   },
   colorMode: {
     preference: "system",
     fallback: "light",
+    classSuffix: "",
   },
   vite: {
     build: {
@@ -59,10 +63,20 @@ export default defineNuxtConfig({
       },
     },
     optimizeDeps: {
-      include: ["vue", "vue-router", "@google/generative-ai", "jwt-decode"],
+      include: [
+        "vue", 
+        "vue-router", 
+        "@google/generative-ai", 
+        "jwt-decode",
+        "@prisma/client/runtime",
+      ],
+      exclude: ["@prisma/client"],
     },
     css: {
       preprocessorMaxWorkers: true,
+    },
+    ssr: {
+      noExternal: ["@prisma/client"],
     },
   },
   experimental: {
@@ -71,6 +85,7 @@ export default defineNuxtConfig({
     viewTransition: true,
     renderJsonPayloads: false,
     clientFallback: true,
+    payloadExtraction: false,
   },
   nitro: {
     storage: {
@@ -100,29 +115,42 @@ export default defineNuxtConfig({
       },
       "/api/news": { swr: 1800 },
     },
-    // Añadido para manejar mejor ESM
     esbuild: {
       options: {
-        target: 'esnext'
+        target: 'esnext',
+        platform: 'node',
       }
-    }
+    },
+    externals: {
+      inline: ["@prisma/client", "@prisma/client/runtime"],
+    },
   },
   typescript: {
     strict: true,
     typeCheck: true,
+    shim: false,
   },
   build: {
     transpile: [
       "@google/generative-ai", 
       "cookie",
-      "@prisma/client", // Añadido para manejar Prisma
-      "bcryptjs",       // Añadido para manejar bcryptjs
-      "jsonwebtoken"    // Añadido para manejar jwt
-    ]
+      "@prisma/client",
+      "bcryptjs",
+      "jsonwebtoken",
+      "@prisma/client/runtime",
+    ],
   },
   tailwindcss: {
     configPath: "~/tailwind.config.ts",
     exposeConfig: false,
     viewer: false,
+    config: {
+      darkMode: "class",
+    },
+  },
+  hooks: {
+    'build:before': () => {
+      process.env.PRISMA_SKIP_POSTINSTALL = 'true'
+    },
   },
 });
