@@ -1,42 +1,22 @@
 import { theme } from "#tailwind-config";
+
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
   features: {
-    devLogs: false, // Reducir logs en producción
+    devLogs: false,
   },
   ssr: false,
   css: ["~/assets/css/main.css"],
   modules: [
-    [
-      "@prisma/nuxt",
-      {
-        studio: false, // Desactivar Prisma Studio en desarrollo
-        client: {
-          // Configuración optimizada
-          autoRegister: false,
-          prismaPath: "node_modules/.prisma/client",
-        },
-      },
-    ],
-    [
-      "@nuxt/ui",
-      {
-        global: true,
-        icons: ["heroicons"],
-        safelist: [], // Limitar clases generadas
-        prefix: "U", // Mejorar tree-shaking
-      },
-    ],
     "@nuxtjs/tailwindcss",
-  ],
-  components: [
-    {
-      path: "~/components",
-      pathPrefix: false, // Mejor organización según docs
-      extensions: [".vue"], // Limitar a extensiones necesarias
-    },
-  ],
+    "@nuxt/ui",
+  ], // Removí @prisma/nuxt ya que manejaremos Prisma manualmente
+  components: {
+    path: "~/components",
+    pathPrefix: false,
+    extensions: [".vue"],
+  },
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -64,7 +44,6 @@ export default defineNuxtConfig({
     preference: "system",
     fallback: "light",
   },
-  // Optimizaciones de vite
   vite: {
     build: {
       cssMinify: "esbuild",
@@ -75,22 +54,20 @@ export default defineNuxtConfig({
           drop_debugger: process.env.NODE_ENV === "production",
         },
         format: {
-          comments: false, // Eliminar todos los comentarios
+          comments: false,
         },
       },
     },
     optimizeDeps: {
       include: ["vue", "vue-router", "@google/generative-ai", "jwt-decode"],
     },
-    // Layout no jode con esto
     css: {
       preprocessorMaxWorkers: true,
     },
   },
-  // Configurar la carga perezosa de imágenes
   experimental: {
-    asyncEntry: true, // Habilitar carga async
-    componentIslands: true, // Islands architecture
+    asyncEntry: true,
+    componentIslands: true,
     viewTransition: true,
     renderJsonPayloads: false,
     clientFallback: true,
@@ -99,7 +76,6 @@ export default defineNuxtConfig({
     storage: {
       data: {
         driver: 'vercelKV'
-        /* Vercel KV driver options */
       }
     },
     compressPublicAssets: {
@@ -110,7 +86,7 @@ export default defineNuxtConfig({
       crawlLinks: true,
       routes: ["/"],
     },
-    moduleSideEffects: [], // Mejorar tree-shaking
+    moduleSideEffects: [],
     minify: true,
     routeRules: {
       "/api/**": {
@@ -122,22 +98,31 @@ export default defineNuxtConfig({
           "Access-Control-Allow-Headers": "*",
         },
       },
-      // Student
       "/api/news": { swr: 1800 },
     },
+    // Añadido para manejar mejor ESM
+    esbuild: {
+      options: {
+        target: 'esnext'
+      }
+    }
   },
-  // Añadir configuración de TypeScript
   typescript: {
     strict: true,
     typeCheck: true,
   },
-  // Configuración adicional para Gemini
   build: {
-    transpile: ["@google/generative-ai", "cookie"],
+    transpile: [
+      "@google/generative-ai", 
+      "cookie",
+      "@prisma/client", // Añadido para manejar Prisma
+      "bcryptjs",       // Añadido para manejar bcryptjs
+      "jsonwebtoken"    // Añadido para manejar jwt
+    ]
   },
   tailwindcss: {
     configPath: "~/tailwind.config.ts",
-    exposeConfig: false, // Desactivar si no se necesita
-    viewer: false, // Desactivar en producción
+    exposeConfig: false,
+    viewer: false,
   },
 });
