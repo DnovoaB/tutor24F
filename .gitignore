@@ -12,13 +12,92 @@ node_modules
 # Logs
 logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Misc
 .DS_Store
 .fleet
 .idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vercel
 
 # Local env files
 .env
 .env.*
 !.env.example
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage
+
+# Temporary files
+tmp
+temp
+
+# Prisma
+prisma/*.db
+prisma/migrations
+
+# Build artifacts
+build
+out
+
+# Serverless directories
+.serverless
+
+# Nuxt generate
+dist
+
+# Service worker
+sw.*
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Packages
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases
+*.sqlite
+
+# OS generated files
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.idea
+*.swp
+*.swo
+*~
